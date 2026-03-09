@@ -34,9 +34,15 @@
                 color: white;
             } 
             .box{
-                background-color: #e584e1;
+                background-color: #a0c9e8a4;
+
                 border: 1px solid blue;
-                min-height: 50px;
+                min-height: 750px;
+            }
+            .middlebox{
+                background-color: #93fbd8c4;
+                border: 1px solid blue;
+                min-height: 340px;
             }
         </style>
     </head>
@@ -47,10 +53,11 @@
                     <div class="box"></div>
             </div>
                 <div class="col-6">
-                     <div class="box">
+                     <div class="middlebox">
                         <p>{{ title}} </p>
                          <p>Message: {{ message }}</p> 
                      </div> 
+                     <div class="middlebox"></div>
                 </div>
                 <div class="col-3">
                      <div class="box"></div>
