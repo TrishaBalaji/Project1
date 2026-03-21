@@ -1,0 +1,85 @@
+<!DOCTYPE html> 
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script defer src="../alt_view.js"></script>
+        <script src ="../form.js"></script>
+        <!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script> -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">  
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script> 
+        <nav class="topnav">
+            <a class="active" href="#items">Item Records</a>
+            <a href="#dash">Dashboards</a>
+            <a href="#calc">Calculator</a>
+            <a href="#restock">Restocker</a>
+        </nav>
+        
+        <style>
+            td {border: 1px solid black;}
+            .topnav {
+                overflow: hidden;
+                background-color: #333;
+                }
+
+            .topnav a {
+                float: center;
+                color: #f2f2f2;
+                text-align: center;
+                padding: 14px 16px;
+                text-decoration: none;
+                font-size: 17px;
+            }
+            .topnav a:hover {
+                background-color: #7FFFD4;
+                color: white;
+            } 
+            .box{
+                background-color: #a0c9e8a4;
+
+                border: 1px solid blue;
+                min-height: 750px;
+            }
+            .middlebox{
+                background-color: #93fbd8c4;
+                border: 1px solid blue;
+                min-height: 340px;
+            }
+        </style>
+    </head>
+    <body>
+    <div class="container-fluid"> 
+        <div class="row">
+            <div class="col-2">
+                    <div class="box"></div>
+            </div>
+                <div class="col-8">
+                     <div class="middlebox">
+                        <p>{{ title}} </p>
+                         <p>Message: {{ message }}</p> 
+                     </div> 
+                     <div class="middlebox"> 
+                      <title> {{ title }}</title>
+                      <h2> How much should I stock?</h2>
+                     <form id="form" action="/" method="GET">
+                        <div>
+              <label for="bags_sold"> Please enter bags sold this month</label>
+               <input id="bags_sold" name="bags_sold" type="integer" required>
+              </div>
+              <div>
+               <label for="bags_ship">Please enter bags per shipment</label>
+               <input id="bags_ship" name="bags_ship" type="integer">
+  </div>
+  <button type="submit">Submit</button>
+</form>
+</div>
+                </div>
+                <div class="col-2">
+                     <div class="box"></div>
+                </div>
+        </div>
+    </div>
+
+    </body>
+</html>
