@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Product</title>
+  </head>
+  <body>
+    <h1>Welcome to the Product page, {{username}}!</h1>
+
+    <h2>Products</h2>
+    <table border="1">
+      <tr>
+        <th>Item</th>
+        <th>Price</th>
+        <th>Sold</th>
+        <th>Stocked</th>
+        <th>Discount</th>
+        <th>Popularity</th>
+        <th>Competitors</th>
+        <th>Actions</th>
+      </tr>
+
+      {{#products}}
+  <tr data-item="{{item}}">
+    <td class="view">{{item}}</td>
+    <td class="view">{{price}}</td>
+    <td class="view">{{amount_sold}}</td>
+    <td class="view">{{amount_stocked}}</td>
+    <td class="view">{{discounts}}</td>
+    <td class="view">{{popularity}}</td>
+    <td class="view">{{competitors}}</td>
+
+    <!-- Edit mode inputs -->
+    <td class="edit" style="display:none;">
+      <input name="price" value="{{price}}">
+      <input name="amount_sold" value="{{amount_sold}}">
+      <input name="amount_stocked" value="{{amount_stocked}}">
+      <input name="discounts" value="{{discounts}}">
+      <input name="popularity" value="{{popularity}}">
+      <input name="competitors" value="{{competitors}}">
+    </td>
+
+    <td>
+      <button class="editBtn">Edit</button>
+      <button class="saveBtn" style="display:none;">Save</button>
+      <button class="cancelBtn" style="display:none;">Cancel</button>
+
+          <form action="/deleteProduct" method="POST" style="display:inline;">
+            <input type="hidden" name="item" value="{{item}}">
+            <button type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {{/products}}
+    </table>
+
+       <h3>Add Product</h3>
+    <form action="/addProduct" method="POST">
+      <input name="item" placeholder="Item" required>
+      <input name="price" placeholder="Price" required>
+      <input name="amount_sold" placeholder="Sold" required>
+      <input name="amount_stocked" placeholder="Stocked" required>
+      <input name="discounts" placeholder="Discount">
+      <input name="popularity" placeholder="Popularity">
+      <input name="competitors" placeholder="Competitors">
+      <button type="submit">Add</button>
+    </form>
+
+    <hr>
+
+    <h2>Stores</h2>
+    <table border="1">
+      <tr>
+        <th>Name</th>
+        <th>Customers Served</th>
+        <th>Products Stocked</th>
+        <th>Competitors</th>
+        <th>Financial Position</th>
+        <th>Shipments</th>
+        <th>Actions</th>
+      </tr>
+
+      {{#stores}}
+      <tr>
+        <td>{{name}}</td>
+        <td>{{customers_served}}</td>
+        <td>{{products_stocked}}</td>
+        <td>{{competitors}}</td>
+        <td>{{financial_position}}</td>
+        <td>{{product_shipments}}</td>
+          <td>
+          <form action="/deleteStore" method="POST" style="display:inline;">
+            <input type="hidden" name="name" value="{{name}}">
+            <button type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {{/stores}}
+    </table>
+
+     <h3>Add Store</h3>
+    <form action="/addStore" method="POST">
+      <input name="name" placeholder="Name" required>
+      <input name="customers_served" placeholder="Customers Served" required>
+      <input name="products_stocked" placeholder="Products Stocked" required>
+      <input name="competitors" placeholder="Competitors">
+      <input name="financial_position" placeholder="Financial Position">
+      <input name="product_shipments" placeholder="Shipments">
+      <button type="submit">Add</button>
+    </form>
+
+    <br />
+    <a href="/mypage">Log Out</a>
+  </body>
+  <script>
+document.querySelectorAll(".editBtn").forEach(btn => {
+  btn.addEventListener("click", function () {
+    const row = this.closest("tr");
+    row.querySelectorAll(".view").forEach(td => td.style.display = "none");
+    row.querySelectorAll(".edit").forEach(td => td.style.display = "table-cell");
+    row.querySelector(".saveBtn").style.display = "inline";
+    row.querySelector(".cancelBtn").style.display = "inline";
+    this.style.display = "none";
+  });
+});
+
+document.querySelectorAll(".cancelBtn").forEach(btn => {
+  btn.addEventListener("click", function () {
+    const row = this.closest("tr");
+    row.querySelectorAll(".view").forEach(td => td.style.display = "table-cell");
+    row.querySelectorAll(".edit").forEach(td => td.style.display = "none");
+    row.querySelector(".editBtn").style.display = "inline";
+    row.querySelector(".saveBtn").style.display = "none";
+    this.style.display = "none";
+  });
+});
+
+document.querySelectorAll(".saveBtn").forEach(btn => {
+  btn.addEventListener("click", function () {
+    const row = this.closest("tr");
+    const item = row.dataset.item;
+
+    const inputs = row.querySelectorAll(".edit input");
+    const data = {
+      item,
+      price: inputs[0].value,
+      amount_sold: inputs[1].value,
+      amount_stocked: inputs[2].value,
+      discounts: inputs[3].value,
+      popularity: inputs[4].value,
+      competitors: inputs[5].value
+    };
+
+    fetch("/updateProduct", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    }).then(() => location.reload());
+  });
+});
+</script>
+
+<h2>How much should I stock?</h2>
+
+<form action="/stockCalculator" method="POST">
+  <label>Item Name:</label>
+  <input type="text" name="item" required>
+
+  <button type="submit">Calculate</button>
+</form>
+
+{{#stockResult}}
+  <p><strong>{{item}}</strong> sells <strong>{{sold}}</strong> units per month.</p>
+  <p>You should stock <strong>{{yearly}}</strong> units per year.</p>
+{{/stockResult}}
+
+{{#stockError}}
+  <p style="color:red;">{{stockError}}</p>
+{{/stockError}}
+
+<h2>Yearly Sales Revenue Calculator</h2>
+
+<form action="/revenueCalculator" method="POST">
+  <label>Product Name:</label>
+  <input type="text" name="item" required>
+  <button type="submit">Calculate Revenue</button>
+</form>
+
+{{#revenueResult}}
+  <p><strong>{{item}}</strong> sells <strong>{{sold}}</strong> units per month at ${{price}} each.</p>
+  <p>Estimated yearly revenue: <strong>${{yearlyRevenue}}</strong></p>
+{{/revenueResult}}
+
+{{#revenueError}}
+  <p style="color:red;">{{revenueError}}</p>
+{{/revenueError}}
+
+<a href="/dashboard?username={{username}}">Dashboard</a>
+
+</html>
