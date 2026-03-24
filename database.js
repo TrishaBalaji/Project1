@@ -1,5 +1,27 @@
 const sqlite3 = require("sqlite3");
 const sqlite = require("sqlite");
+const usersDB = new sqlite3.Database("./table1.db", (err) => {
+  if (err) {
+    console.error(err.message);
+  } else {
+    console.log("Connected to the SQLite database.");
+    usersDB.run(
+      `CREATE TABLE IF NOT EXISTS Users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL UNIQUE,
+            password TEXT NOT NULL
+        )`,
+      (err) => {
+        if (err) {
+          console.error(err.message);}
+      },
+    );
+  }
+});
+const productsDB = new sqlite3.Database("table2.db");
+const storesDB = new sqlite3.Database("table3.db");
+
+module.exports = {usersDB, productsDB, storesDB};
 
 async function table1()
 {
