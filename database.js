@@ -1,32 +1,27 @@
+const path = require("path");
 const sqlite3 = require("sqlite3");
 const sqlite = require("sqlite");
-const usersDB = new sqlite3.Database("./table1.db", (err) => {
-  if (err) {
-    console.error(err.message);
-  } else {
-    console.log("Connected to the SQLite database.");
-    usersDB.run(
-      `CREATE TABLE IF NOT EXISTS Users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL UNIQUE,
-            password TEXT NOT NULL
-        )`,
-      (err) => {
-        if (err) {
-          console.error(err.message);}
-      },
-    );
-  }
-});
-const productsDB = new sqlite3.Database("table2.db");
-const storesDB = new sqlite3.Database("table3.db");
 
-module.exports = {usersDB, productsDB, storesDB};
+const table1Path = path.join(__dirname, "table1.db");
+const table2Path = path.join(__dirname, "table2.db");
+const table3Path = path.join(__dirname, "table3.db");
+
+const usersDB = new sqlite3.Database(table1Path); 
+const productsDB = new sqlite3.Database(table2Path);
+const storesDB = new sqlite3.Database(table3Path);
+
+module.exports = {usersDB, productsDB, storesDB, initializeDatabases};
+
+async function initializeDatabases() {
+  await table1();
+  await table2();
+  await table3();
+}
 
 async function table1()
 {
     const db = await sqlite.open({
-        filename: ,
+        filename: table1Path,
         driver: sqlite3.Database
     });
     
@@ -40,17 +35,16 @@ async function table1()
     await db.run("INSERT INTO Users VALUES (?,?,?,?,?,?,?)", ['David','hemsworth','David', 'Smith','davidisthebest@gmail.com', 'No Frills', '1500']);
     await db.run("INSERT INTO Users VALUES (?,?,?,?,?,?,?)", ['Erica','uniteduk','Erica', 'Lee','eric.17.sha@gmail.com', 'Sobeys', '3000']);
 
-    let results = await db.all("SELECT rowid as id, * FROM Users");
+    const results = await db.all("SELECT rowid as id, * FROM Users");
     console.log(results);
 
+    await db.close();
 }
-
-table1()
 
 async function table2()
 {
     const db = await sqlite.open({
-        filename: "table2.db",
+        filename: table2Path,
         driver: sqlite3.Database
     });
 
@@ -64,16 +58,16 @@ async function table2()
     await db.run("INSERT INTO Products VALUES (?,?,?,?,?,?,?)", ['Ms.Vickies','4.99','667', '770','0.00', 'med', 'Lays']);
     await db.run("INSERT INTO Products VALUES (?,?,?,?,?,?,?)", ['Ruffles','3.99','489', '600','0.20', 'low', 'Ms.Vickies']);
 
-    let results = await db.all("SELECT rowid as id, * FROM Products");
+    const results = await db.all("SELECT rowid as id, * FROM Products");
     console.log(results);
-}
 
-table2()
+    await db.close();
+}
 
 async function table3()
 {
     const db = await sqlite.open({
-        filename: "table3.db",
+        filename: table3Path,
         driver: sqlite3.Database
     });
 
@@ -87,8 +81,8 @@ async function table3()
     await db.run("INSERT INTO Stores VALUES (?,?,?,?,?,?)", ['Longos','1500','667', 'Sobeys','good', '900']);
     await db.run("INSERT INTO Stores VALUES (?,?,?,?,?,?)", ['Freshco','2000','489', 'No Frills','bad', '900']);
 
-    let results = await db.all("SELECT rowid as id, * FROM Stores");
+    const results = await db.all("SELECT rowid as id, * FROM Stores");
     console.log(results);
-}
 
-table3()
+    await db.close();
+}
