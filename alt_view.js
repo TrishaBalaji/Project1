@@ -10,7 +10,7 @@ app.set("view engine", "html");
 
 app.set("views", __dirname + "/views");
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(__dirname + "/public")); // Serve static files (like script.js)
+app.use(express.static(__dirname)); // Serve static files (like script.js)
 
 
 app.get('/mypage',function(req, res) {
@@ -84,11 +84,11 @@ app.get("/product", (req, res) => {
 });
 
 app.post("/deleteProduct", (req, res) => {
-  const { item } = req.body;
+  const { item, username } = req.body;
 
   productsDB.run("DELETE FROM Products WHERE item = ?", [item], (err) => {
     if (err) console.error(err);
-    res.redirect("back");
+    res.redirect("/product?username=" + encodeURIComponent(username));
   });
 });
 
@@ -101,21 +101,21 @@ app.post("/addProduct", (req, res) => {
 
   productsDB.run(query, [item, price, amount_sold, amount_stocked, discounts, popularity, competitors], (err) => {
     if (err) console.error(err);
-    res.redirect("back");
+    res.redirect("/product?username=" + encodeURIComponent(username));
   });
 });
 
 app.post("/deleteStore", (req, res) => {
-  const { name } = req.body;
+  const { name, username } = req.body;
 
   storesDB.run("DELETE FROM Stores WHERE name = ?", [name], (err) => {
     if (err) console.error(err);
-    res.redirect("back");
+    res.redirect("/product?username=" + encodeURIComponent(username));
   });
 });
 
 app.post("/addStore", (req, res) => {
-  const { name, customers_served, products_stocked, competitors, financial_position, product_shipments } = req.body;
+  const { username, name, customers_served, products_stocked, competitors, financial_position, product_shipments } = req.body;
 
   const query = `
     INSERT INTO Stores VALUES (?, ?, ?, ?, ?, ?)
@@ -123,7 +123,7 @@ app.post("/addStore", (req, res) => {
 
   storesDB.run(query, [name, customers_served, products_stocked, competitors, financial_position, product_shipments], (err) => {
     if (err) console.error(err);
-    res.redirect("back");
+    res.redirect("/product?username=" + encodeURIComponent(username));
   });
 });
 
@@ -177,8 +177,31 @@ app.get("/dashboard", (req, res) => {
   });
 });
 
+function renderProductPage(res, username, extraData = {}) {
+  productsDB.all("SELECT * FROM Products", (err, products) => {
+    if (err) {
+      console.error(err);
+      return res.send("Error loading products");
+    }
+
+    storesDB.all("SELECT * FROM Stores", (err, stores) => {
+      if (err) {
+        console.error(err);
+        return res.send("Error loading stores");
+      }
+
+      res.render("product", {
+        username,
+        products,
+        stores,
+        ...extraData
+      });
+    });
+  });
+}
+
 app.post("/stockCalculator", (req, res) => {
-  const { item } = req.body;
+  const { item, username } = req.body;
 
   productsDB.get(
     "SELECT amount_sold FROM Products WHERE item = ?",
@@ -200,7 +223,7 @@ app.post("/stockCalculator", (req, res) => {
       const sold = parseInt(row.amount_sold);
       const yearly = sold * 12;
 
-      res.render("product", {
+      return renderProductPage(res, username, {
         stockResult: {
           item,
           sold,
@@ -212,7 +235,7 @@ app.post("/stockCalculator", (req, res) => {
 });
 
 app.post("/revenueCalculator", (req, res) => {
-  const { item } = req.body;
+  const { item, username } = req.body;
 
   productsDB.get(
     "SELECT price, amount_sold FROM Products WHERE item = ?",
@@ -235,7 +258,7 @@ app.post("/revenueCalculator", (req, res) => {
       const sold = parseInt(row.amount_sold);
       const yearlyRevenue = (price * sold * 12).toFixed(2);
 
-      res.render("product", {
+      renderProductPage(res, username, {
         revenueResult: {
           item,
           price,
@@ -245,11 +268,6 @@ app.post("/revenueCalculator", (req, res) => {
       });
     }
   );
-});
-
-app.get(/^(.+)$/, function(req, res){
-    console.log("static file request: " + req.params[0]);
-    res.sendFile(__dirname + req.params[0]);
 });
 
 initializeDatabases().then(() => {
